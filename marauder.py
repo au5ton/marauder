@@ -39,15 +39,35 @@ for root, dirs, files in os.walk(os.path.abspath(args.source)):
     os.makedirs(os.path.normpath(os.path.join(os.path.abspath(args.destination), os.path.relpath(root, start=os.path.abspath(args.source)))), exist_ok=True)
 spinner.succeed()
 
+
+
+
+## Re-create folder structure in destination
+spinner = Halo(text='Queuing files', spinner='dots')
+spinner.start()
+
+QUEUED_FILES = []
+
+for root, dirs, files in os.walk(os.path.abspath(args.source)):
+    for name in files:
+        # create an array of tuples: (file_size,  src_path, dest_path)
+        QUEUED_FILES += [(os.stat(os.path.join(root, name)).st_size, os.path.join(root, name), os.path.join(os.path.abspath(args.destination), os.path.relpath(os.path.join(root, name), start=os.path.abspath(args.source))))]
+spinner.succeed()
+QUEUED_FILES.sort()
+
 TRAVERSED = 0
-with tqdm(total=DISK_USAGE, unit="bytes") as t:
+with tqdm(total=DISK_USAGE, unit="bytes", unit_scale=True) as t:
     for root, dirs, files in os.walk(os.path.abspath(args.source)):
         for name in files:
-            print(f'{os.path.join(root, name)} => {os.path.join(os.path.abspath(args.destination), os.path.relpath(os.path.join(root, name), start=os.path.abspath(args.source)))}')
+            t.write(f'{os.path.join(root, name)} => {os.path.join(os.path.abspath(args.destination), os.path.relpath(os.path.join(root, name), start=os.path.abspath(args.source)))}')
             with open(os.path.join(root, name), 'rb', buffering=64) as infile:
                 with open(os.path.join(os.path.abspath(args.destination), os.path.relpath(os.path.join(root, name), start=os.path.abspath(args.source))), 'wb', buffering=64) as outfile:
-                    while len(infile.peek(64)) > 0:
-                        n = len(infile.peek(64))
-                        TRAVERSED += infile.tell()
-                        outfile.write(infile.read(64))
-                        t.update(n)
+                    FILE_SIZE = os.stat(os.path.join(root, name)).st_size
+                    LAST = 0
+                    # copy file
+                    while infile.tell() < FILE_SIZE:
+                        outfile.write(infile.read())
+                        t.update(infile.tell() - LAST)
+                        LAST = infile.tell()
+                    # run command (upload)
+                    # delete source file
