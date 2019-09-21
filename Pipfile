@@ -8,6 +8,5 @@ verify_ssl = true
 [packages]
 tqdm = "*"
 halo = "*"
-
-[requires]
-python_version = "3.7"
+humanfriendly = "*"
+colorama = "*"
