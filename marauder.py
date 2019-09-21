@@ -69,19 +69,19 @@ with tqdm(total=DISK_USAGE, unit="bytes", unit_scale=True) as t:
         FILE_SIZE, SRC, DESTINATION = item
         t.write(f'[{i} / {FILE_COUNT}] {Fore.YELLOW}{os.path.relpath(SRC, start=os.path.abspath(args.source))} @ {humanfriendly.format_size(FILE_SIZE, binary=True)}{Fore.RESET}')
         with open(SRC, 'rb', buffering=64) as infile:
-            with open(DESTINATION, 'wb', buffering=64) as outfile:
+            with open(DESTINATION, 'wb', buffering=4096) as outfile:
                 # copy file
                 LAST = 0
                 t.write(f'\t{Fore.YELLOW}Started copy... {Fore.RESET}')
                 while infile.tell() < FILE_SIZE:
-                    outfile.write(infile.read())
+                    outfile.write(infile.read(4096))
                     t.update(infile.tell() - LAST)
                     LAST = infile.tell()
                 t.write(f'\t{Fore.YELLOW}Finished copy {Fore.RESET}{Fore.GREEN}✔{Fore.RESET}')
-                # run command (upload)
-                t.write(f'\t{Fore.YELLOW}Waiting for command to exit: {args.command} {Fore.RESET}')
-                subprocess.run(args.command.split(' '))
-                t.write(f'\t{Fore.YELLOW}Exited! {Fore.GREEN}✔{Fore.RESET}')
+        # run command (upload)
+        t.write(f'\t{Fore.YELLOW}Waiting for command to exit: {args.command} {Fore.RESET}')
+        subprocess.run(args.command.split(' '))
+        t.write(f'\t{Fore.YELLOW}Exited! {Fore.GREEN}✔{Fore.RESET}')
         # delete source file
         if args.delete_source:
             t.write(f'\t{Fore.YELLOW}Deleting source and desination... {Fore.RESET}', end='')
