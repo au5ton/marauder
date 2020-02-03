@@ -19,6 +19,8 @@ parser.add_argument('-c', dest='command', metavar='sleep 5', required=True, type
                 help='Shell command to be run after each copy')
 parser.add_argument('-X', dest='delete_source', action='store_true',
                 help='When enabled, will delete source files')
+parser.add_argument('-K', dest='keep_destination', action='store_true',
+                help='When enabled, will keep destination files')
 args = parser.parse_args()
 
 ## Calculate file size
@@ -84,14 +86,17 @@ with tqdm(total=DISK_USAGE, unit="bytes", unit_scale=True) as t:
         t.write(f'\t{Fore.YELLOW}Exited! {Fore.GREEN}✔{Fore.RESET}')
         # delete source file
         if args.delete_source:
-            t.write(f'\t{Fore.YELLOW}Deleting source and desination... {Fore.RESET}', end='')
+            t.write(f'\t{Fore.YELLOW}Deleting source... {Fore.RESET}', end='')
             os.remove(SRC)
-            os.remove(DESTINATION)
-            t.write(f'\t{Fore.YELLOW}Deleting source and desination... {Fore.RESET}{Fore.GREEN}✔{Fore.RESET}')
+            t.write(f'\t{Fore.YELLOW}Deleting source... {Fore.RESET}{Fore.GREEN}✔{Fore.RESET}')
+
+        if args.keep_destination:
+            t.write(f'\t{Fore.YELLOW}Keeping desination! {Fore.RESET}{Fore.GREEN}✔{Fore.RESET}')
         else:
             t.write(f'\t{Fore.YELLOW}Deleting desination... {Fore.RESET}', end='')
             os.remove(DESTINATION)
             t.write(f'\t{Fore.YELLOW}Deleting desination... {Fore.RESET}{Fore.GREEN}✔{Fore.RESET}')
+
         i += 1
             
         
