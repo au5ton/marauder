@@ -116,6 +116,10 @@ with tqdm(total=DISK_USAGE, unit='bytes', unit_scale=True, colour='yellow') as t
                     LAST = infile.tell()
                 t.write(f'\t{Fore.YELLOW}Finished copy {Fore.RESET}{Fore.GREEN}✔{Fore.RESET}')
         
+        if CHUNK_SIZE != None:
+            CURRENT_CHUNK_TRANSFERRED += FILE_SIZE
+            t.write(f'\t{Fore.YELLOW}Current chunk: {humanfriendly.format_size(CURRENT_CHUNK_TRANSFERRED, binary=True)} transferred ({humanfriendly.format_size(CHUNK_SIZE, binary=True)} limit){Fore.RESET}')
+
         if CHUNK_SIZE == None:
             # run command (upload)
             t.write(f'\t{Fore.YELLOW}Waiting for command to exit: {args.command} {Fore.RESET}')
