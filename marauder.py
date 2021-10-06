@@ -79,11 +79,10 @@ if CHUNK_SIZE != None and len(QUEUED_FILES) > 0 and QUEUED_FILES[0][0] > CHUNK_S
 print(f'Copying {FILE_COUNT} files')
 
 CURRENT_CHUNK_TRANSFERRED = 0
-#i = 1
 with tqdm(total=DISK_USAGE, unit='bytes', unit_scale=True, colour='yellow') as t:
     for i in range(0, len(QUEUED_FILES)):
         # unwrap tuple
-        FILE_SIZE, SRC, DESTINATION = QUEUED_FILES[0]
+        FILE_SIZE, SRC, DESTINATION = QUEUED_FILES[i]
         
         t.write(f'[{i+1} / {FILE_COUNT}] {Fore.YELLOW}{os.path.relpath(SRC, start=os.path.abspath(args.source))} @ {humanfriendly.format_size(FILE_SIZE, binary=True)}{Fore.RESET}')
         
@@ -116,26 +115,32 @@ with tqdm(total=DISK_USAGE, unit='bytes', unit_scale=True, colour='yellow') as t
                     t.update(infile.tell() - LAST)
                     LAST = infile.tell()
                 t.write(f'\t{Fore.YELLOW}Finished copy {Fore.RESET}{Fore.GREEN}✔{Fore.RESET}')
-        if CHUNK_SIZE != None:
-            CURRENT_CHUNK_TRANSFERRED += FILE_SIZE
-            t.write(f'\t{Fore.YELLOW}Current chunk: {humanfriendly.format_size(CURRENT_CHUNK_TRANSFERRED, binary=True)} transferred ({humanfriendly.format_size(CHUNK_SIZE, binary=True)} limit){Fore.RESET}')
         
         if CHUNK_SIZE == None:
             # run command (upload)
             t.write(f'\t{Fore.YELLOW}Waiting for command to exit: {args.command} {Fore.RESET}')
             subprocess.run(args.command.split(' '))
             t.write(f'\t{Fore.YELLOW}Exited! {Fore.GREEN}✔{Fore.RESET}')
-            # delete source file
+        # delete source file
+        if CHUNK_SIZE == None:
             if args.delete_source:
                 t.write(f'\t{Fore.YELLOW}Deleting source... {Fore.RESET}', end='')
                 os.remove(SRC)
                 t.write(f'\t{Fore.YELLOW}Deleting source... {Fore.RESET}{Fore.GREEN}✔{Fore.RESET}')
+        else:
+            t.write(f'\t{Fore.YELLOW}Chunk size provided, deleting source... {Fore.RESET}', end='')
+            os.remove(SRC)
+            t.write(f'\t{Fore.YELLOW}Chunk size provided, deleting source... {Fore.RESET}{Fore.GREEN}✔{Fore.RESET}')
 
+        if CHUNK_SIZE == None:
             if args.keep_destination:
                 t.write(f'\t{Fore.YELLOW}Keeping desination! {Fore.RESET}{Fore.GREEN}✔{Fore.RESET}')
             else:
                 t.write(f'\t{Fore.YELLOW}Deleting desination... {Fore.RESET}', end='')
                 os.remove(DESTINATION)
                 t.write(f'\t{Fore.YELLOW}Deleting desination... {Fore.RESET}{Fore.GREEN}✔{Fore.RESET}')
+        else:
+            t.write(f'\t{Fore.YELLOW}Chunk size provided, keeping desination! {Fore.RESET}{Fore.GREEN}✔{Fore.RESET}')
+        
             
         
