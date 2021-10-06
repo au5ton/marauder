@@ -30,6 +30,7 @@ args = parser.parse_args()
 
 if args.show_args:
     print(f'Given arguments: {Fore.YELLOW}{sys.argv}{Fore.RESET}')
+    print(f'Parsed arguments: {Fore.YELLOW}{args}{Fore.RESET}')
 
 ## Calculate file size
 spinner = Halo(text='Calculating file size: ...', spinner='dots')
