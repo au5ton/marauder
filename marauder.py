@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import sys
 import argparse
 import subprocess
 
@@ -23,7 +24,12 @@ parser.add_argument('-K', dest='keep_destination', action='store_true',
                 help='When enabled, will keep destination files. This is ignored when CHUNK_SIZE is supplied.')
 parser.add_argument('--chunk-size', dest='chunk_size', metavar='16G', required=False, type=str, default=None,
                 help='When supplied, files will be copied up to the chunk size before running the command.')
+parser.add_argument('--show-args', dest='show_args', action='store_true',
+                help='When enabled, will show arguments')
 args = parser.parse_args()
+
+if args.show_args:
+    print(f'Given arguments: {Fore.YELLOW}{sys.argv}{Fore.RESET}')
 
 ## Calculate file size
 spinner = Halo(text='Calculating file size: ...', spinner='dots')
