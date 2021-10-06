@@ -126,15 +126,10 @@ with tqdm(total=DISK_USAGE, unit='bytes', unit_scale=True, colour='yellow') as t
             subprocess.run(args.command.split(' '))
             t.write(f'\t{Fore.YELLOW}Exited! {Fore.GREEN}✔{Fore.RESET}')
         # delete source file
-        if CHUNK_SIZE == None:
-            if args.delete_source:
-                t.write(f'\t{Fore.YELLOW}Deleting source... {Fore.RESET}', end='')
-                os.remove(SRC)
-                t.write(f'\t{Fore.YELLOW}Deleting source... {Fore.RESET}{Fore.GREEN}✔{Fore.RESET}')
-        else:
-            t.write(f'\t{Fore.YELLOW}Chunk size provided, deleting source... {Fore.RESET}', end='')
+        if args.delete_source:
+            t.write(f'\t{Fore.YELLOW}Deleting source... {Fore.RESET}', end='')
             os.remove(SRC)
-            t.write(f'\t{Fore.YELLOW}Chunk size provided, deleting source... {Fore.RESET}{Fore.GREEN}✔{Fore.RESET}')
+            t.write(f'\t{Fore.YELLOW}Deleting source... {Fore.RESET}{Fore.GREEN}✔{Fore.RESET}')
 
         if CHUNK_SIZE == None:
             if args.keep_destination:
