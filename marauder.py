@@ -123,6 +123,20 @@ with tqdm(total=DISK_USAGE, unit='bytes', unit_scale=True, colour='yellow') as t
                     LAST = infile.tell()
                 t.write(f'\t{Fore.YELLOW}Finished copy {Fore.RESET}{Fore.GREEN}✔{Fore.RESET}')
         
+        # if this is the final file
+        if CHUNK_SIZE != None and i == (len(QUEUED_FILES) - 1):
+            t.write(f'\t{Fore.YELLOW}Final file has been copied, waiting for command to exit: {args.command} {Fore.RESET}')
+            subprocess.run(args.command.split(' '))
+            t.write(f'\t{Fore.YELLOW}Exited! {Fore.GREEN}✔{Fore.RESET}')
+            t.write(f'\t{Fore.YELLOW}Deleting previous desination files up to this point... {Fore.RESET}', end='')
+            j = 0
+            for previous in QUEUED_FILES[:i]:
+                P_FILE_SIZE, P_SRC, P_DESTINATION = previous
+                if os.path.exists(P_DESTINATION):
+                    j += 1
+                    os.remove(P_DESTINATION)
+            t.write(f'\t{Fore.YELLOW}Deleting previous desination files up to this point... {Fore.RESET}{Fore.GREEN}✔ {j} files removed{Fore.RESET}')
+        
         if CHUNK_SIZE != None:
             CURRENT_CHUNK_TRANSFERRED += FILE_SIZE
             t.write(f'\t{Fore.YELLOW}Current chunk: {humanfriendly.format_size(CURRENT_CHUNK_TRANSFERRED, binary=True)} transferred ({humanfriendly.format_size(CHUNK_SIZE, binary=True)} limit){Fore.RESET}')
